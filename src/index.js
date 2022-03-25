@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const mysql = require("mysql")
+require('dotenv').config()
 
 const data = {
   lat: "",
@@ -10,10 +11,10 @@ const data = {
 }
 
 var con = mysql.createConnection({  
-host: "database-diseno.cw48hb7r0nz7.us-east-1.rds.amazonaws.com",  
-user: "admin",  
-password: "rabt28161",  
-database: "diseno"  
+  host: process.env.HOST,  
+  user: process.env.USER_DB,  
+  password: process.env.PASSWORD,  
+  database: process.env.DB  
 });  
 con.connect(function(err) {  
 if (err) throw err;  
@@ -32,7 +33,8 @@ app.get('/data',(req,res)=>{
   con.query('select * from datos ORDER BY id DESC LIMIT 1',(err,message)=>{
     console.log(message)
      res.status(200).json({
-      data: message[0]
+      data: message
+      
       
     });
     
