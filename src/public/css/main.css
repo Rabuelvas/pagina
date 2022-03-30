@@ -14,15 +14,31 @@ body{
 .grid {
     display: grid;
     grid-template-columns: 50% 50%;
+    width: 50%;
     background: white;
-    margin-left: 25%;
-    margin-right: 25%;
+    margin: 2%;
+    margin-left: 50px;
     border: black solid 2px;
 }
 .grid div{
     text-align: center;
-    padding: 4px;
     border: black solid 1px;
+}
+
+#fechas{
+    float: right;
+    top: 0%;
+    background-color: orangered;
+    width: 360px;
+    height: 100px;
+    margin: 2px;
+    margin-right: 10%;
+    text-align: center;
+    color: white;
+    border: #fff solid 2px;
+;
+    
+
 }
 
 #title{
@@ -32,5 +48,10 @@ body{
     color: #fff;
     background-color: orangered;
     
+}
+
+#button{
+    text-align: center;
+    width: 290px;
 }
 

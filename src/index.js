@@ -3,6 +3,12 @@ const path = require("path");
 const mysql = require("mysql")
 require('dotenv').config()
 
+var hist
+let fecha_in=0
+let hora_in =0
+let fecha_fin=0
+let hora_fin=0
+
 const data = {
   lat: "",
   long: "",
@@ -31,7 +37,7 @@ app.get("/", (req, res) => {
 
 app.get('/data',(req,res)=>{
   con.query('select * from datos ORDER BY id DESC LIMIT 1',(err,message)=>{
-    console.log(message)
+   
      res.status(200).json({
       data: message
       
@@ -68,6 +74,30 @@ server.on('listening', (req, res) => {
   const address = server.address();
   console.log(`server listening on ${address.address}:${address.port}`);
 });
+
+app.post("/historicos", function(req, res) {
+  
+    hist = req.body;
+    fecha_in= hist[0];
+    hora_in = hist[1];
+    fecha_fin=hist[2];
+    hora_fin=hist[3];
+
+    console.log(hist)
+    
+});
+
+app.get('/request',(req,res)=>{
+
+    con.query(`select latitud,longitud from datos where fecha between '${fecha_in}' and '${fecha_fin}' 
+    and hora between '${hora_in}' and '${hora_fin}' order by id`,(err, historial,fields)=>{
+      
+      res.status(200).json({
+        data: historial,
+      });
+    })
+
+})
 
 
 server.bind(3020);
