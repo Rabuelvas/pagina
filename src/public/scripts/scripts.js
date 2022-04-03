@@ -9,53 +9,25 @@ const long = document.getElementById("long");
 const lat = document.getElementById("lat");
 const time = document.getElementById("time");
 const date = document.getElementById("date");
-let resultado = 0;
-let resultado2 = 0;
-let tiempo = 0;
-let tiempo2 = 0;
-let fecha_in = 0;
-
+let start = 0
+let end = 0
 
 document.getElementById("start").addEventListener("change", function() {
     var inicio = this.value;
-    var start = new Date(inicio)
-    var month = '' + (start.getMonth() + 1),
-    day = '' + start.getDate(),
-    year = start.getFullYear();
-
-    if (month.length < 2) 
-    month = '0' + month;
-    if (day.length < 2) 
-    day = '0' + day;
-
-    resultado =[year, month, day].join('-');
-
-    tiempo = start.toLocaleTimeString("en-GB")
+    start = new Date(inicio).getTime();
 })
 
 document.getElementById("stop").addEventListener("change", function() {
     var fin = this.value
-    var end = new Date(fin)
-    var month = '' + (end.getMonth() + 1),
-    day = '' + end.getDate(),
-    year = end.getFullYear();
-
-    if (month.length < 2) 
-    month = '0' + month;
-    if (day.length < 2) 
-    day = '0' + day;
-
-    resultado2 =[year, month, day].join('-');
-    
-    tiempo2 = end.toLocaleTimeString("en-GB")
-
+    end = new Date(fin).getTime();
+    console.log(end)
 })
 
 const button = document.getElementById("button");
 button.addEventListener("click",function(){
 
-    var fechas =[resultado,tiempo,resultado2,tiempo2];
-    
+    var fechas =[start,end];
+    console.log(fechas)
     fetch('/historicos' ,{
         headers:{
             'Content-type':'application/json'
@@ -89,7 +61,7 @@ async function getData() {
     if (polyline) {
         polyline.setLatLngs(array)
     }else {
-        polyline = L.polyline(array, {color: 'red'}).addTo(map)
+        polyline = L.polyline(array, {color: 'aqua'}).addTo(map)
     }
 } 
 
@@ -99,14 +71,13 @@ async function getFecha() {
     const res = await fetch('/request')
     let json = await res.json()
 
-    fecha_in = json.data;
+    let datos = json.data;
 
     var Nvector = [];
+    
+    for (var i = 0, max = datos.length; i < max; i+=1) {
  
-    for (var i = 0, max = fecha_in.length; i < max; i += 1) {
- 
-        Nvector.push([fecha_in[i].latitud,fecha_in[i].longitud]);
- 
-     }
+        Nvector.push([datos[i].latitud,datos[i].longitud]);
+    }
      polyline2 = L.polyline(Nvector, {color: 'blue'}).addTo(map)
 }

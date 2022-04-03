@@ -8,12 +8,17 @@ let fecha_in=0
 let hora_in =0
 let fecha_fin=0
 let hora_fin=0
+let fecha=0
+const dgram = require('dgram');
+const req = require("express/lib/request");
+const { timeStamp } = require("console");
+const server = dgram.createSocket('udp4');
 
 const data = {
   lat: "",
   long: "",
   time: "",
-  date: ""
+  date: "",
 }
 
 var con = mysql.createConnection({  
@@ -47,9 +52,7 @@ app.get('/data',(req,res)=>{
   });
 });
 
-const dgram = require('dgram');
-const req = require("express/lib/request");
-const server = dgram.createSocket('udp4');
+
 server.on('error', (err) => {
   console.log(`server error:\n${err.stack}`);
   server.close();
@@ -61,10 +64,16 @@ server.on('message', async (msg, senderInfo) => {
   const variables = 
   data.lat = mensaje[0].split(" ")[1]
   data.long = mensaje[1].split(" ")[1]
-  data.time = mensaje[2].split(" ")[2]
+  data.time = mensaje[2].split(" ")[2];
   data.date = mensaje[2].split(" ")[1].slice(1)
+  fecha = data.date+" "+data.time;
 
-  var sql = `INSERT INTO datos (latitud , longitud, hora, fecha) VALUES ('${data.lat}','${data.long}','${data.time}','${data.date}')`;
+  var ts = new Date(fecha).getTime();
+  console.log(ts);
+
+  
+
+  var sql = `INSERT INTO datos (latitud , longitud, hora, fecha,timestamp) VALUES ('${data.lat}','${data.long}','${data.time}','${data.date}','${ts}')`;
   con.query(sql, function (err, result) {  
     if (err) throw err;  
     console.log("dato recibido");  
@@ -79,18 +88,17 @@ app.post("/historicos", function(req, res) {
   
     hist = req.body;
     fecha_in= hist[0];
-    hora_in = hist[1];
-    fecha_fin=hist[2];
-    hora_fin=hist[3];
+    fecha_fin=hist[1];
 
-    console.log(hist)
+    console.log(fecha_in)
+    console.log(fecha_fin)
     
 });
 
 app.get('/request',(req,res)=>{
 
-    con.query(`select latitud,longitud from datos where fecha between '${fecha_in}' and '${fecha_fin}' 
-    and hora between '${hora_in}' and '${hora_fin}' order by id`,(err, historial,fields)=>{
+    con.query(`select latitud,longitud from datos where timestamp between'${fecha_in}' and '${fecha_fin}' 
+      order by id`,(err, historial,fields)=>{
       
       res.status(200).json({
         data: historial,
