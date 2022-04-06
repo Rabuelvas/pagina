@@ -5,10 +5,12 @@ require('dotenv').config()
 
 var hist
 let fecha_in=0
-let hora_in =0
 let fecha_fin=0
-let hora_fin=0
 let fecha=0
+let press_lat=0
+let press_lng=0
+var ruta
+
 const dgram = require('dgram');
 const req = require("express/lib/request");
 const { timeStamp } = require("console");
@@ -89,9 +91,6 @@ app.post("/historicos", function(req, res) {
     hist = req.body;
     fecha_in= hist[0];
     fecha_fin=hist[1];
-
-    console.log(fecha_in)
-    console.log(fecha_fin)
     
 });
 
@@ -106,6 +105,25 @@ app.get('/request',(req,res)=>{
     })
 
 })
+
+app.post("/rutas", function(req, res) {
+  
+  ruta = req.body;
+  press_lat=ruta.lat;
+  press_lng=ruta.lng;
+
+  console.log(press_lat)
+  console.log(press_lng)
+
+  var rutas = con.query(`select * from datos where (latitud-'${press_lat}')*(latitud-'${press_lat}')+(longitud-('${press_lng}'))*(longitud-('${press_lng}'))<0.0001 order by id`,
+  (err, historial,fields)=>{
+    
+    console.log(historial)
+    res.json(historial)
+  })
+
+});
+
 
 
 server.bind(3020);

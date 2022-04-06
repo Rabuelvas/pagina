@@ -9,7 +9,7 @@
    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
    crossorigin=""/>
    
-   <link rel="stylesheet"href = "/css/main.css">
+    <link rel="stylesheet"href = "/css/main.css">
 
 </head>
 <body>
@@ -21,12 +21,14 @@
                 <label for="start">Inicio</label>
                 <input id="start" type="datetime-local" placeholder="Select DateTime">
             </div>
+            
             <div>
                 <label for="stop">Final </label>
                 <input id="stop" type="datetime-local" placeholder="Select DateTime">
             </div>
             <div>
                 <input id="button" type="button" value="Trazar recorrido histórico del vehículo">
+                <input id="button2" type="button" value="Buscar en rutas">
             </div>
 
         </section>
@@ -61,6 +63,7 @@
 
     
     <section>
+        <input id="slider" type="range" min="0" step="1">
         <id id="mapa"></id>
     </section>
     
@@ -72,5 +75,6 @@
     crossorigin=""></script>
 
     <script src="/scripts/scripts.js"type="module"></script>
+
 </body>
 </html>
