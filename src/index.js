@@ -106,6 +106,11 @@ app.get('/request',(req,res)=>{
 
 })
 
+app.post("/update", function(req, res) {
+  console.log("Actualizado")
+
+})
+
 app.post("/rutas", function(req, res) {
   
   ruta = req.body;
