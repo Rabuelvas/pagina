@@ -62,24 +62,23 @@ server.on('error', (err) => {
 server.on('message', async (msg, senderInfo) => {
   console.log('Messages received ' + msg)
   const mensaje = String(msg).split("\n")
-
-  const variables = 
-  data.lat = mensaje[0].split(" ")[1]
-  data.long = mensaje[1].split(" ")[1]
-  data.time = mensaje[2].split(" ")[2];
-  data.date = mensaje[2].split(" ")[1].slice(1)
-  fecha = data.date+" "+data.time;
-
-  var ts = new Date(fecha).getTime();
-  console.log(ts);
-
+  console.log(mensaje)
   
+  if(mensaje != ''){
+    data.lat = mensaje[0].split(" ")[1];
+    data.long = mensaje[1].split(" ")[1]
+    data.time = mensaje[2].split(" ")[2];
+    data.date = mensaje[2].split(" ")[1].slice(1)
+    fecha = data.date+" "+data.time;
+  
+    var ts = new Date(fecha).getTime();
 
-  var sql = `INSERT INTO datos (latitud , longitud, hora, fecha,timestamp) VALUES ('${data.lat}','${data.long}','${data.time}','${data.date}','${ts}')`;
-  con.query(sql, function (err, result) {  
+    var sql = `INSERT INTO datos (latitud , longitud, hora, fecha,timestamp) VALUES ('${data.lat}','${data.long}','${data.time}','${data.date}','${ts}')`;
+    con.query(sql, function (err, result) {  
     if (err) throw err;  
     console.log("dato recibido");  
     });  
+  }
 });
 server.on('listening', (req, res) => {
   const address = server.address();
@@ -116,9 +115,6 @@ app.post("/rutas", function(req, res) {
   ruta = req.body;
   press_lat=ruta.lat;
   press_lng=ruta.lng;
-
-  console.log(press_lat)
-  console.log(press_lng)
 
   var rutas = con.query(`select * from datos where (latitud-'${press_lat}')*(latitud-'${press_lat}')+(longitud-('${press_lng}'))*(longitud-('${press_lng}'))<0.0001 order by id`,
   (err, historial,fields)=>{
