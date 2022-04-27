@@ -13,24 +13,15 @@
 
 </head>
 <body>
-    <h1 id="title">Ubicación GPS</h1>
+    <header>
+        <h1 id="title">Ubicación GPS</h1>
+        <a id="inicio" href="/">Tiempo real</a>
+        <a id="historicos" href="/historico">Históricos</a>
+        <a id="ruta" href="/ruta">Rutas</a>
+        
+    </header>
+    
     <section id="datos">
-        <section id="fechas" class="fechas">
-            <div>
-                <label for="start">Inicio</label>
-                <input id="start" type="datetime-local" placeholder="Select DateTime">
-            </div>
-            <div>
-                <label for="stop">Final </label>
-                <input id="stop" type="datetime-local" placeholder="Select DateTime">
-            </div>
-            <div>
-                <input id="button" type="button" value="Trazar recorrido histórico del vehículo">
-            </div>
-            <div>
-                <input id="button2" type="button" value="Buscar rutas">
-            </div>
-        </section>
 
         <section class="grid">
             <div class="name">Latitud: </div>
@@ -50,7 +41,6 @@
     </section>
     
     <section>
-        <input id="slider" type="range" min="0" step="1">
         <id id="mapa"></id>
     </section>
     

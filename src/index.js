@@ -38,8 +38,14 @@ app.use(express.static(path.join(__dirname , "public")));
 app.use(express.json())
 
 app.get("/", (req, res) => {
-  console.log(true)
   res.sendFile(path.join(__dirname + "/public/main.html"));
+});
+app.get("/ruta", (req, res) => {
+  res.sendFile(path.join(__dirname + "/public/ruta.html"));
+});
+
+app.get("/historico", (req, res) => {
+  res.sendFile(path.join(__dirname + "/public/historico.html"));
 });
 
 app.get('/data',(req,res)=>{
@@ -90,12 +96,13 @@ app.post("/historicos", function(req, res) {
     hist = req.body;
     fecha_in= hist[0];
     fecha_fin=hist[1];
-    
+    res.status(200).send('ok')
 });
 
 app.get('/request',(req,res)=>{
 
-    con.query(`select latitud,longitud from datos where timestamp between'${fecha_in}' and '${fecha_fin}' 
+    let {inicio, fin} = req.query;
+    con.query(`select latitud,longitud from datos where timestamp between'${inicio}' and '${fin}' 
       order by id`,(err, historial,fields)=>{
       
       res.status(200).json({
@@ -119,7 +126,6 @@ app.post("/rutas", function(req, res) {
   var rutas = con.query(`select * from datos where (latitud-'${press_lat}')*(latitud-'${press_lat}')+(longitud-('${press_lng}'))*(longitud-('${press_lng}'))<0.0001 order by id`,
   (err, historial,fields)=>{
     
-    console.log(historial)
     res.json(historial)
   })
 
