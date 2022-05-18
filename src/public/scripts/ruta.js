@@ -8,14 +8,21 @@ let marcador2 = null;
 const byplce = document.querySelector('.byplace');
 let MINOR_RADIUS = 200
 let MAJOR_RADIUS = 1100
+let taxi = null;
 
 
 const map = L.map('mapa');
 map.setView([10.9767610, -74.8307289], 12);
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-const chart=document.getElementById("byplace");
-  
+const chart = document.getElementById("byplace");
+const selector = document.getElementById("selector");
+
+selector.addEventListener('change', (e)=>{
+    taxi = e.target.value
+    console.log(taxi)
+})
+
 map.on('click', (e) => {
 
     Vector_r = e.latlng
@@ -43,7 +50,7 @@ button2.addEventListener("click", function () {
         });
 
         if (polyline3) polyline3.setLatLngs(Vector_c)
-        else polyline3 = L.polyline(Vector_c, { color: 'red',stroke:true,weight: 8 }).addTo(map)
+        else polyline3 = L.polyline(Vector_c, { color: 'red', stroke: true, weight: 8 }).addTo(map)
 
         if (marcador2) marcador2.setLatLng(Vector_c[0])
         else marcador2 = L.marker(Vector_c[0])
@@ -57,16 +64,19 @@ button2.addEventListener("click", function () {
 
         slider.max = Vector_c.length - 1;
         slider.value = 0;
+        oninput()
     })
 
 })
 
-slider.oninput = e => {
+
+const oninput = e => {
+    console.log(datos[slider.value]);
 
     const center = [datos[slider.value].latitud, datos[slider.value].longitud]
     Vector_r = center
     if (circle) circle.setLatLng(Vector_r)
-    else  circle=L.circle(Vector_r, {radius: MINOR_RADIUS}).addTo(map);
+    else circle = L.circle(Vector_r, { radius: MINOR_RADIUS }).addTo(map);
     circle.setRadius(MINOR_RADIUS)
 
 
@@ -74,42 +84,50 @@ slider.oninput = e => {
 
     const formatCenter = circle.getLatLng()
 
-  var cont = 0;
-  byplce.innerHTML = null;
-  for(var [i,marker] of datos.entries()){
-      if(Math.abs(formatCenter.distanceTo([marker.latitud, marker.longitud])) < 150){
-          const hist_item = create_hist_item(cont,i);
-          byplce.appendChild(hist_item)
-          cont++
-      }
-  }
+    var cont = 0;
+    byplce.innerHTML = null;
+    for (var [i, marker] of datos.entries()) {
+        if (Math.abs(formatCenter.distanceTo([marker.latitud, marker.longitud])) < 150) {
+            const hist_item = create_hist_item(cont, i);
+            byplce.appendChild(hist_item)
+            cont++
+        }
+    }
+
+    let dist;
+    if (!datos[slider.value].distancia) { dist = "" }
+    else { dist = `<br>Distancia: ${datos[slider.value].distancia}cm` }
+    marcador2.bindPopup(`
+        Fecha: ${datos[slider.value].fecha} <br>
+        Hora: ${datos[slider.value].hora} ${dist}
+    `)
 }
 
-slider.onchange = e => {
-    marcador2?.setLatLng([datos[slider.value].latitud, datos[slider.value].longitud])
-    marcador2?.bindPopup(`
-    fecha: ${datos[slider.value].fecha} <br>
-    hora: ${datos[slider.value].hora}
-`)
-}
+slider.oninput = oninput
 
-function create_hist_item(id,i) {
-  const place_item = document.createElement('div');
-  place_item.classList.add('place-item');
+function create_hist_item(id, i) {
+    const place_item = document.createElement('div');
+    place_item.classList.add('place-item');
 
-  const place_content = document.createElement('div');
-  place_content.classList.add('place-item-content');
+    const index = document.createElement('div');
+    index.classList.add('index');
+    index.innerHTML = datos[i].distancia?datos[i].distancia+"cm":"";
 
-      const place_coords = document.createElement('div');
-      place_coords.classList.add('place-item-coords');
-      place_coords.innerHTML = `${datos[i].latitud}, ${datos[i].longitud}`;
+    const place_content = document.createElement('div');
+    place_content.classList.add('place-item-content');
 
-      const place_time = document.createElement('div');
-      place_time.classList.add('place-item-time');
-      place_time.innerHTML = `${datos[i].fecha} : ${datos[i].hora}`;
-  place_content.appendChild(place_coords);
-  place_content.appendChild(place_time);
-  place_item.appendChild(place_content);
+    const place_coords = document.createElement('div');
+    place_coords.classList.add('place-item-coords');
+    place_coords.innerHTML = `${datos[i].latitud}, ${datos[i].longitud}`;
 
-  return place_item;
+    const place_time = document.createElement('div');
+    place_time.classList.add('place-item-time');
+    place_time.innerHTML = `${datos[i].fecha} : ${datos[i].hora}`;
+
+    place_content.appendChild(place_coords);
+    place_content.appendChild(place_time);
+    place_item.appendChild(place_content);
+    place_item.appendChild(index)
+
+    return place_item;
 }

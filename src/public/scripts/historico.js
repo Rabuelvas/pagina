@@ -1,7 +1,7 @@
 let start = 0
 let end = 0
-let marcador2 = null;
 let polyline = null;
+let polyline2 = null;
 
 const map = L.map('mapa');
 map.setView([10.9767610, -74.8307289], 12);
@@ -29,7 +29,7 @@ async function getFecha() {
   let json = await res.json()
 
   let datos = json.data;
-
+  console.log(datos)
   var Nvector = [];
 
   for (var i = 0, max = datos.length; i < max; i += 1) {
@@ -40,5 +40,28 @@ async function getFecha() {
     polyline.setLatLngs(Nvector)
   } else {
     polyline = L.polyline(Nvector, { color: 'orange' }).addTo(map)
+  }
+}
+
+button.addEventListener("click", getFecha2)
+
+async function getFecha2() {
+
+  const res2 = await fetch(`/request2?inicio=${start}&fin=${end}`)
+  let json2 = await res2.json()
+
+  let datos2 = json2.data;
+
+  var Nvector2 = [];
+  console.log(datos2)
+
+  for (var i = 0, max = datos2.length; i < max; i += 1) {
+    Nvector2.push([datos2[i].latitud, datos2[i].longitud]);
+  }
+
+  if (polyline2) {
+    polyline2.setLatLngs(Nvector2)
+  } else {
+    polyline2 = L.polyline(Nvector2, { color: 'aqua' }).addTo(map)
   }
 }
