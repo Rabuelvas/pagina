@@ -1,19 +1,16 @@
 const express = require("express");
 const path = require("path");
-const mysql = require("mysql")
+const mysql = require("mysql2")
 require('dotenv').config()
 
 var hist
 let fecha_in=0
 let fecha_fin=0
 let fecha=0
-let press_lat=0
-let press_lng=0
-var ruta
-
 const dgram = require('dgram');
 const req = require("express/lib/request");
 const { timeStamp } = require("console");
+const { REPL_MODE_SLOPPY } = require("repl");
 const server = dgram.createSocket('udp4');
 
 const data = {
@@ -21,15 +18,13 @@ const data = {
   long: "",
   time: "",
   date: "",
-  distance: "",
-  id: ""
 }
 
 var con = mysql.createConnection({  
-  host: process.env.HOST,  
-  user: process.env.USER_DB,  
-  password: process.env.PASSWORD,  
-  database: process.env.DB  
+  host: 'database-diseno.cw48hb7r0nz7.us-east-1.rds.amazonaws.com',
+  user: 'admin',  
+  password: 'Rabt_28161',  
+  database: 'diseno'  
 });  
 con.connect(function(err) {  
 if (err) throw err;  
@@ -40,37 +35,13 @@ app.use(express.static(path.join(__dirname , "public")));
 app.use(express.json())
 
 app.get("/", (req, res) => {
+  console.log(true)
   res.sendFile(path.join(__dirname + "/public/main.html"));
 });
-app.get("/ruta", (req, res) => {
-  res.sendFile(path.join(__dirname + "/public/ruta.html"));
-});
 
-app.get("/historico", (req, res) => {
-  res.sendFile(path.join(__dirname + "/public/historico.html"));
-});
-
-app.get('/data',(req,res)=>{
-  con.query('select * from datos where idTaxi="ABC123" ORDER BY id DESC LIMIT 1',(err,message)=>{
-   
-     res.status(200).json({
-      data: message
-      
-      
-    });
-
-  });
-});
-
-app.get('/data2',(req,res)=>{
-  con.query('select * from datos where idTaxi="DEF456" ORDER BY id DESC LIMIT 1',(err,message)=>{
-   
-     res.status(200).json({
-      data: message
-      
-      
-    });
-  });
+app.get("/historicos", (req, res) => {
+  console.log(true)
+  res.sendFile(path.join(__dirname + "/public/historicos.html"));
 });
 
 
@@ -78,12 +49,12 @@ server.on('error', (err) => {
   console.log(`server error:\n${err.stack}`);
   server.close();
 });
+
 server.on('message', async (msg, senderInfo) => {
   console.log('Messages received ' + msg)
   const mensaje = String(msg).split("\n")
   console.log(mensaje)
   
-  var id;
   if(mensaje != ''){
     data.lat = mensaje[0].split(" ")[1];
     data.long = mensaje[1].split(" ")[1];
@@ -111,24 +82,32 @@ server.on('message', async (msg, senderInfo) => {
   }
 });
 
+
+
 server.on('listening', (req, res) => {
   const address = server.address();
   console.log(`server listening on ${address.address}:${address.port}`);
 });
 
-/* app.post("/historicos", function(req, res) {
+app.get('/historicos', function(req, res) {
+  res.sendFile(path.join(__dirname, 'public', 'historicos.html'));
+});
+
+app.post("/historicos", function(req, res) {
   
     hist = req.body;
     fecha_in= hist[0];
     fecha_fin=hist[1];
-    res.status(200).send('ok')
-}); */
 
-app.get('/request',(req,res)=>{
+    console.log(fecha_in)
+    console.log(fecha_fin)
+    
+});
 
-    let {inicio, fin} = req.query;
-    con.query(`select latitud,longitud from datos where idTaxi = "ABC123" and timestamp between'${inicio}' and '${fin}' 
-      order by id`,(err, historial,fields)=>{
+app.get('/request',(req,res)=>{//historicos
+
+    con.query(`SELECT * FROM datos WHERE timestamp BETWEEN '${fecha_in}' and '${fecha_fin}' 
+      order by id`,(err, historial)=>{
       
       res.status(200).json({
         data: historial,
@@ -137,52 +116,16 @@ app.get('/request',(req,res)=>{
 
 })
 
-app.get('/request2',(req,res2)=>{
-
-  let {inicio, fin} = req.query;
-  con.query(`select latitud,longitud from datos where idTaxi = "DEF456" and timestamp between'${inicio}' and '${fin}' 
-    order by id`,(err, historial,fields)=>{
-    
-    res2.status(200).json({
-      data: historial,
+app.get('/data',(req,res)=>{
+  let {id}=req.query;
+  con.query(`select * from datos where idTaxi="${id}" ORDER BY id DESC LIMIT 1`,(err,message)=>{
+     res.status(200).json({
+      data: message
+      
     });
-  })
-
-})
-
-app.post("/update", function(req, res) {
-  console.log("Actualizado")
-
-})
-
-app.post("/rutas", function(req, res) {
-  
-  ruta = req.body;
-  press_lat=ruta.lat;
-  press_lng=ruta.lng;
-
-  var rutas = con.query(`select * from datos where (latitud-'${press_lat}')*(latitud-'${press_lat}')+(longitud-('${press_lng}'))*(longitud-('${press_lng}'))<0.0001 order by id`,
-  (err, historial,fields)=>{
-    
-    res.json(historial)
-  })
-
+  });
 });
 
-/* app.post("/rutas2", function(req, res) {
-  
-  ruta = req.body;
-  press_lat=ruta.lat;
-  press_lng=ruta.lng;
-
-  var rutas = con.query(`select * from datos where taxiId="DEF456" (latitud-'${press_lat}')*(latitud-'${press_lat}')+(longitud-('${press_lng}'))*(longitud-('${press_lng}'))<0.0001 order by id`,
-  (err, historial,fields)=>{
-    
-    res.json(historial)
-  })
-
-});
- */
 server.bind(3020);
 
 app.listen(3000,()=>{
